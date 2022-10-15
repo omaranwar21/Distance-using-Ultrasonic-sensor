@@ -1,0 +1,31 @@
+/*
+ * ultrasonic.c
+ *
+ *  Created on: Oct 10, 2022
+ *      Author: Anwar
+ */
+
+
+#include "ultrasonic.h"
+#include "icu.h"
+#include "gpio.h"
+
+
+void Ultrasonic_init(void){
+	Icu_ConfigType icu = {ICU_CLOCK,
+			ICU_EDGETYPE
+	};
+
+	Icu_init(& icu);
+
+	Icu_setCallBack(Ultrasonic_edgeProcessing);
+
+	GPIO_setupPinDirection(ULTRASONIC_TRIGGER_PORT, ULTRASONIC_TRIGGER_PIN, PIN_OUTPUT);
+
+}
+
+
+void Ultrasonic_edgeProcessing(void){
+
+}
+

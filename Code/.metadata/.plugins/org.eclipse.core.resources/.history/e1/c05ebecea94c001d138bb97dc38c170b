@@ -1,0 +1,33 @@
+/*
+ * main.c
+ *
+ *  Created on: Oct 10, 2022
+ *      Author: Anwar
+ */
+
+#include "lcd.h"
+#include "ultrasonic.h"
+#include <avr/io.h>
+#include <avr/interrupt.h>
+#include <util/delay.h>
+
+int main(int argc, char **argv) {
+	sei();
+	LCD_init();
+
+	LCD_displayString("DISTANCE=    cm");
+
+	Ultrasonic_init();
+	while(1){
+		uint16 distance = 0;
+				distance = Ultrasonic_readDistance();
+		LCD_moveCursor(0, 10);
+		LCD_intgerToString(distance);
+		if(distance<100)
+			LCD_displayCharacter(' ');
+		LCD_intgerToString(distance);
+		_delay_ms(100);
+	}
+
+}
+

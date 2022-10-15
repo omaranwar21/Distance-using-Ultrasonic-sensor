@@ -1,0 +1,28 @@
+/*
+ * ultrasonic.c
+ *
+ *  Created on: Oct 10, 2022
+ *      Author: Anwar
+ */
+
+
+#include "ultrasonic.h"
+#include "icu.h"
+
+
+void Ultrasonic_init(void){
+	Icu_ConfigType icu = {ICU_CLOCK,
+			ICU_EDGETYPE
+	};
+
+	Icu_init(& icu);
+
+	Icu_setCallBack(Ultrasonic_edgeProcessing);
+
+}
+
+
+void Ultrasonic_edgeProcessing(void){
+
+}
+

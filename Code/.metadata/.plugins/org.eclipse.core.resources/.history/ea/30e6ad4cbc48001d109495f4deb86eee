@@ -1,0 +1,25 @@
+/*
+ * main.c
+ *
+ *  Created on: Oct 10, 2022
+ *      Author: Anwar
+ */
+
+#include "lcd.h"
+#include "ultrasonic.h"
+
+int main(int argc, char **argv) {
+	LCD_init();
+
+	LCD_displayString("DISTANCE=    cm");
+
+	Ultrasonic_init();
+	while(1){
+		uint16 distance = Ultrasonic_readDistance();
+		LCD_moveCursor(0, 10);
+
+		LCD_intgerToString(distance);
+	}
+
+}
+

@@ -1,0 +1,120 @@
+ /******************************************************************************
+ *
+ * Module: Ultrasonic sensor
+ *
+ * File Name: ultrasonic.c
+ *
+ * Description: Source file for ultrasonic sensor driver
+ *
+ * Author: Omar Ahmed Anwar Mansour
+ *
+ *******************************************************************************/
+
+
+#include "ultrasonic.h"
+#include "gpio.h"
+#include "icu.h"
+#include <util/delay.h>
+
+/*******************************************************************************
+ *                           Global Variables                                  *
+ *******************************************************************************/
+static uint16 g_echoTime = 0;
+static uint8 g_edgeCount = 0;
+
+
+Icu_ConfigType icu = {
+		F_CPU_8,
+		RISING
+};
+
+/*
+ * 	Description
+ * 		Initialization the ICU driver required.
+ * 		The ICU Setup call back function.
+ * 		Setup the direction for the trigger pin as output pin through the GPIO driver.
+ */
+void Ultrasonic_init(void){
+
+
+	Icu_init(&icu);
+
+	Icu_setCallBack(Ultrasonic_edgeProcessing);
+
+	GPIO_setupPinDirection(ULTRASONIC_TRIGGER_PORT, ULTRASONIC_TRIGGER_PIN, PIN_OUTPUT);
+
+}
+
+/*
+ * 	Description
+ * 		Send the Trigger pulse to the ultrasonic sensor.
+ */
+static void Ultrasonic_Trigger(void){
+	GPIO_writePin(ULTRASONIC_TRIGGER_PORT, ULTRASONIC_TRIGGER_PIN, LOGIC_HIGH);
+
+	_delay_ms(1);
+
+	GPIO_writePin(ULTRASONIC_TRIGGER_PORT, ULTRASONIC_TRIGGER_PIN, LOGIC_LOW);
+}
+
+/*
+ * 	Description
+ * 		Send the trigger pulse by using Ultrasonic_Trigger function.
+ * 		Start the measurements by the ICU from this moment.
+ */
+uint16 Ultrasonic_readDistance(void){
+	/*
+	 * Send Trigger value
+	 */
+	Ultrasonic_Trigger();
+
+	/*
+	 * Polling until find the second edge
+	 */
+	while(g_edgeCount != 2);
+
+	/*
+	 * Reset the edge counter
+	 */
+	g_edgeCount = 0;
+
+	/*
+	 * return distance read
+	 */
+	return g_echoTime/58.8;
+}
+
+
+void Ultrasonic_edgeProcessing(void){
+
+	g_edgeCount++;
+	if(g_edgeCount == 1)
+	{
+		/*
+		 * Clear the timer counter register to start measurements from the
+		 * first detected rising edge
+		 */
+		Icu_clearTimerValue();
+
+
+		/* Detect falling edge */
+		Icu_setEdgeDetectionType(FALLING);
+	}
+	else if(g_edgeCount == 2)
+	{
+		/* Store the High time value */
+		g_echoTime = Icu_getInputCaptureValue();
+
+		/*
+		 * Clear the timer counter register to start measurements from the
+		 * first detected falling edge
+		 */
+		Icu_clearTimerValue();
+
+		/* Detect rising edge */
+		Icu_setEdgeDetectionType(RISING);
+
+	}
+
+}
+

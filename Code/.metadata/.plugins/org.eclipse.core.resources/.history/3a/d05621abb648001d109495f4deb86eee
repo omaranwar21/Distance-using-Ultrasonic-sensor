@@ -1,0 +1,65 @@
+/*
+ * ultrasonic.c
+ *
+ *  Created on: Oct 10, 2022
+ *      Author: Anwar
+ */
+
+
+#include "ultrasonic.h"
+#include "icu.h"
+#include "gpio.h"
+#include "util/delay.h"
+#include "common_macros.h"
+
+/*******************************************************************************
+ *                           Global Variables                                  *
+ *******************************************************************************/
+volatile static uint16 g_time;
+
+
+void Ultrasonic_init(void){
+	Icu_ConfigType icu = {ICU_CLOCK,
+			ICU_EDGETYPE
+	};
+
+	Icu_init(& icu);
+
+	Icu_setCallBack(Ultrasonic_edgeProcessing);
+
+	GPIO_setupPinDirection(ULTRASONIC_TRIGGER_PORT, ULTRASONIC_TRIGGER_PIN, PIN_OUTPUT);
+
+
+}
+
+void Ultrasonic_Trigger(void){
+	GPIO_writePin(ULTRASONIC_TRIGGER_PORT, ULTRASONIC_TRIGGER_PIN, LOGIC_HIGH);
+	_delay_us(10);
+}
+
+uint16 Ultrasonic_readDistance(void){
+	uint16 distance = 0;
+	Ultrasonic_Trigger();
+	Ultrasonic_edgeProcessing();
+
+	distance = (g_time)/((float32)ULTRASONIC_CONST_FOR_DISTANCE);
+}
+
+
+void Ultrasonic_edgeProcessing(void){
+
+	while (GET_BIT(ULTRASONIC_ECHO_PORT, ULTRASONIC_ECHO_PIN) != ICU_EDGETYPE);
+	Icu_clearTimerValue();
+	Icu_setCallBack(FALLING);
+
+	while (GET_BIT(ULTRASONIC_ECHO_PORT, ULTRASONIC_ECHO_PIN) == ICU_EDGETYPE);
+	g_time = Icu_getInputCaptureValue();
+
+
+
+
+
+
+
+}
+

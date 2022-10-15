@@ -1,0 +1,20 @@
+21:13:00 **** Incremental Build of configuration Debug for project DistanceUsingUltrasonicSensor ****
+make all 
+Invoking: Print Size
+avr-size --format=avr --mcu=atmega32 DistanceUsingUltrasonicSensor.elf
+AVR Memory Usage
+----------------
+Device: atmega32
+
+Program:    9492 bytes (29.0% Full)
+(.text + .data + .bootloader)
+
+Data:        289 bytes (14.1% Full)
+(.data + .bss + .noinit)
+
+
+Finished building: sizedummy
+ 
+
+21:13:00 Build Finished. 0 errors, 0 warnings. (took 150ms)
+
